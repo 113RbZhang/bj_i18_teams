@@ -1,58 +1,322 @@
-    private static SingleOutputStreamOperator<JSONObject> fixedNewAndOld(SingleOutputStreamOperator<JSONObject> jsonObjDS) {
-        //按照设备id进行分组
-        KeyedStream<JSONObject, String> keyedDS = jsonObjDS.keyBy(jsonObj -> jsonObj.getJSONObject("common").getString("mid"));
-        //使用Flink的状态编程完成修复
-        SingleOutputStreamOperator<JSONObject> fixedDS = keyedDS.map(
-                new RichMapFunction<JSONObject, JSONObject>() {
-                    private ValueState<String> lastVisitDateState;
+D:\java\jdk\jdk\bin\java.exe "-javaagent:D:\java\idea\IntelliJ IDEA 2023.1.7\lib\idea_rt.jar=57107:D:\java\idea\IntelliJ IDEA 2023.1.7\bin" -Dfile.encoding=UTF-8 -classpath C:\Users\DELL\AppData\Local\Temp\classpath69798253.jar com.rb.black_list.codes.BlackListProcessingData
+19:15:16,972 WARN  org.apache.flink.runtime.security.token.DefaultDelegationTokenManager [main]  - No tokens obtained so skipping notifications
+19:15:18,586 WARN  org.apache.flink.runtime.webmonitor.WebMonitorUtils          [main]  - Log file environment variable 'log.file' is not set.
+19:15:18,586 WARN  org.apache.flink.runtime.webmonitor.WebMonitorUtils          [main]  - JobManager log files are unavailable in the web dashboard. Log file location not found in environment variable 'log.file' or configuration key 'web.log.path'.
+19:15:22,023 WARN  org.apache.flink.runtime.security.token.DefaultDelegationTokenManager [flink-akka.actor.default-dispatcher-6]  - No tokens obtained so skipping notifications
+19:15:22,025 WARN  org.apache.flink.runtime.security.token.DefaultDelegationTokenManager [flink-akka.actor.default-dispatcher-6]  - Tokens update task not started because either no tokens obtained or none of the tokens specified its renewal date
+19:15:25,659 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'key.deserializer' was supplied but isn't a known config.
+19:15:25,660 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'value.deserializer' was supplied but isn't a known config.
+19:15:25,660 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'enable.auto.commit' was supplied but isn't a known config.
+19:15:25,660 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'group.id' was supplied but isn't a known config.
+19:15:25,661 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'client.id.prefix' was supplied but isn't a known config.
+19:15:25,661 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'partition.discovery.interval.ms' was supplied but isn't a known config.
+19:15:25,661 WARN  org.apache.kafka.clients.admin.AdminClientConfig             [SourceCoordinator-Source: Kafka Source]  - The configuration 'auto.offset.reset' was supplied but isn't a known config.
+19:15:27,944 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#0]  - The configuration 'client.id.prefix' was supplied but isn't a known config.
+19:15:27,945 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#0]  - The configuration 'partition.discovery.interval.ms' was supplied but isn't a known config.
+19:15:33,771 WARN  org.apache.flink.runtime.taskmanager.Task                    [commentDs (1/1)#0]  - commentDs (1/1)#0 (8a21cc6e6fb07f70327acde2143aa910_22cf407ed4e9dc7f031405f67d9e9983_0_0) switched from RUNNING to FAILED with failure cause:
+java.lang.RuntimeException: Could not extract key from {"op":"d","before":{"create_time":1744189415000,"user_id":7,"appraise":"1201","comment_txt":"评论内容：28163436844877216664957125466466228996188685172123","nick_name":"坚和","sku_id":31,"id":1,"spu_id":10,"order_id":18},"source":{"server_id":1,"version":"1.6.4.Final","file":"mysql-bin.000002","connector":"mysql","pos":3738955,"name":"mysql_binlog_source","row":0,"ts_ms":1744092413000,"snapshot":"false","db":"online_flink_retail","table":"comment_info"},"ts_ms":1745225176684}
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:61)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:35)
+	at org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter.emit(ChannelSelectorRecordWriter.java:55)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.pushToRecordWriter(RecordWriterOutput.java:105)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:91)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:45)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:59)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:31)
+	at org.apache.flink.streaming.api.operators.StreamFilter.processElement(StreamFilter.java:39)
+	at org.apache.flink.streaming.runtime.tasks.OneInputStreamTask$StreamTaskNetworkOutput.emitRecord(OneInputStreamTask.java:237)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.processElement(AbstractStreamTaskNetworkInput.java:146)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.emitNext(AbstractStreamTaskNetworkInput.java:110)
+	at org.apache.flink.streaming.runtime.io.StreamOneInputProcessor.processInput(StreamOneInputProcessor.java:65)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.processInput(StreamTask.java:550)
+	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.runMailboxLoop(MailboxProcessor.java:231)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.runMailboxLoop(StreamTask.java:839)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:788)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:952)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:931)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:745)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+	at com.rb.black_list.codes.BlackListProcessingData.lambda$main$450c0138$1(BlackListProcessingData.java:50)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:58)
+	... 21 more
+19:15:38,461 WARN  org.apache.flink.runtime.taskmanager.TaskManagerLocation     [flink-akka.actor.default-dispatcher-9]  - No hostname could be resolved for the IP address 127.0.0.1, using IP address as host name. Local input split assignment (such as for HDFS files) may be impacted.
+19:15:38,610 WARN  org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator     [Async-Client-Retry-Timer-pool1-t1]  - Failed to locate region in 'dim_zrb_online_v1:base_dic', row='1201', locateType=CURRENT
+org.apache.hadoop.hbase.DoNotRetryIOException: Client already closed
+	at org.apache.hadoop.hbase.zookeeper.ReadOnlyZKClient.list(ReadOnlyZKClient.java:290)
+	at org.apache.hadoop.hbase.client.ZKAsyncRegistry.getMetaRegionLocation(ZKAsyncRegistry.java:197)
+	at org.apache.hadoop.hbase.client.ConnectionUtils.getOrFetch(ConnectionUtils.java:648)
+	at org.apache.hadoop.hbase.client.AsyncMetaRegionLocator.getRegionLocations(AsyncMetaRegionLocator.java:60)
+	at org.apache.hadoop.hbase.client.AsyncRegionLocator.getRegionLocation(AsyncRegionLocator.java:106)
+	at org.apache.hadoop.hbase.client.AsyncRegionLocator.getRegionLocation(AsyncRegionLocator.java:135)
+	at org.apache.hadoop.hbase.client.AsyncSingleRequestRpcRetryingCaller.doCall(AsyncSingleRequestRpcRetryingCaller.java:107)
+	at org.apache.hadoop.hbase.client.AsyncRpcRetryingCaller.lambda$tryScheduleRetry$0(AsyncRpcRetryingCaller.java:143)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$HashedWheelTimeout.expire(HashedWheelTimer.java:682)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$HashedWheelBucket.expireTimeouts(HashedWheelTimer.java:757)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$Worker.run(HashedWheelTimer.java:485)
+	at java.lang.Thread.run(Thread.java:745)
+19:15:38,615 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#1]  - The configuration 'client.id.prefix' was supplied but isn't a known config.
+19:15:38,617 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#1]  - The configuration 'partition.discovery.interval.ms' was supplied but isn't a known config.
+19:15:39,058 WARN  org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator     [Default-IPC-NioEventLoopGroup-1-2]  - Failed to locate region in 'dim_zrb_online_v1:base_dic', row='1201', locateType=CURRENT
+org.apache.hadoop.hbase.TableNotFoundException: dim_zrb_online_v1:base_dic
+	at org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator$1.onComplete(AsyncNonMetaRegionLocator.java:453)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.lambda$startScan$1(AsyncClientScanner.java:183)
+	at org.apache.hadoop.hbase.util.FutureUtils.lambda$addListener$0(FutureUtils.java:65)
+	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:760)
+	at java.util.concurrent.CompletableFuture.uniWhenCompleteStage(CompletableFuture.java:778)
+	at java.util.concurrent.CompletableFuture.whenComplete(CompletableFuture.java:2140)
+	at org.apache.hadoop.hbase.util.FutureUtils.addListener(FutureUtils.java:58)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.startScan(AsyncClientScanner.java:166)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.lambda$openScanner$2(AsyncClientScanner.java:212)
+	at org.apache.hadoop.hbase.util.FutureUtils.lambda$addListener$0(FutureUtils.java:65)
+	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:760)
+	at java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:736)
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:474)
+	at java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1962)
+	at org.apache.hadoop.hbase.client.AsyncSingleRequestRpcRetryingCaller.lambda$call$4(AsyncSingleRequestRpcRetryingCaller.java:90)
+	at org.apache.hadoop.hbase.util.FutureUtils.lambda$addListener$0(FutureUtils.java:65)
+	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:760)
+	at java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:736)
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:474)
+	at java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1962)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.lambda$callOpenScanner$0(AsyncClientScanner.java:157)
+	at org.apache.hbase.thirdparty.com.google.protobuf.RpcUtil$1.run(RpcUtil.java:79)
+	at org.apache.hbase.thirdparty.com.google.protobuf.RpcUtil$1.run(RpcUtil.java:70)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient.onCallFinished(AbstractRpcClient.java:397)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient.access$100(AbstractRpcClient.java:97)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient$3.run(AbstractRpcClient.java:423)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient$3.run(AbstractRpcClient.java:419)
+	at org.apache.hadoop.hbase.ipc.Call.callComplete(Call.java:117)
+	at org.apache.hadoop.hbase.ipc.Call.setResponse(Call.java:149)
+	at org.apache.hadoop.hbase.ipc.NettyRpcDuplexHandler.readResponse(NettyRpcDuplexHandler.java:184)
+	at org.apache.hadoop.hbase.ipc.NettyRpcDuplexHandler.channelRead(NettyRpcDuplexHandler.java:192)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:337)
+	at org.apache.hbase.thirdparty.io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:323)
+	at org.apache.hbase.thirdparty.io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:297)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:337)
+	at org.apache.hbase.thirdparty.io.netty.handler.timeout.IdleStateHandler.channelRead(IdleStateHandler.java:286)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:337)
+	at org.apache.hbase.thirdparty.io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1408)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:930)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:163)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:677)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:612)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:529)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:491)
+	at org.apache.hbase.thirdparty.io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:905)
+	at org.apache.hbase.thirdparty.io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.lang.Thread.run(Thread.java:745)
+19:15:39,625 WARN  org.apache.flink.runtime.taskmanager.Task                    [commentDs (1/1)#1]  - commentDs (1/1)#1 (8a21cc6e6fb07f70327acde2143aa910_22cf407ed4e9dc7f031405f67d9e9983_0_1) switched from RUNNING to FAILED with failure cause:
+java.lang.RuntimeException: Could not extract key from {"op":"d","before":{"create_time":1744189415000,"user_id":7,"appraise":"1201","comment_txt":"评论内容：28163436844877216664957125466466228996188685172123","nick_name":"坚和","sku_id":31,"id":1,"spu_id":10,"order_id":18},"source":{"server_id":1,"version":"1.6.4.Final","file":"mysql-bin.000002","connector":"mysql","pos":3738955,"name":"mysql_binlog_source","row":0,"ts_ms":1744092413000,"snapshot":"false","db":"online_flink_retail","table":"comment_info"},"ts_ms":1745225176684}
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:61)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:35)
+	at org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter.emit(ChannelSelectorRecordWriter.java:55)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.pushToRecordWriter(RecordWriterOutput.java:105)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:91)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:45)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:59)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:31)
+	at org.apache.flink.streaming.api.operators.StreamFilter.processElement(StreamFilter.java:39)
+	at org.apache.flink.streaming.runtime.tasks.OneInputStreamTask$StreamTaskNetworkOutput.emitRecord(OneInputStreamTask.java:237)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.processElement(AbstractStreamTaskNetworkInput.java:146)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.emitNext(AbstractStreamTaskNetworkInput.java:110)
+	at org.apache.flink.streaming.runtime.io.StreamOneInputProcessor.processInput(StreamOneInputProcessor.java:65)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.processInput(StreamTask.java:550)
+	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.runMailboxLoop(MailboxProcessor.java:231)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.runMailboxLoop(StreamTask.java:839)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:788)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:952)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:931)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:745)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+	at com.rb.black_list.codes.BlackListProcessingData.lambda$main$450c0138$1(BlackListProcessingData.java:50)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:58)
+	... 21 more
+19:15:42,217 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#2]  - The configuration 'client.id.prefix' was supplied but isn't a known config.
+19:15:42,218 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#2]  - The configuration 'partition.discovery.interval.ms' was supplied but isn't a known config.
+19:15:42,843 WARN  org.apache.flink.runtime.taskmanager.Task                    [commentDs (1/1)#2]  - commentDs (1/1)#2 (8a21cc6e6fb07f70327acde2143aa910_22cf407ed4e9dc7f031405f67d9e9983_0_2) switched from RUNNING to FAILED with failure cause:
+java.lang.RuntimeException: Could not extract key from {"op":"d","before":{"create_time":1744189415000,"user_id":7,"appraise":"1201","comment_txt":"评论内容：28163436844877216664957125466466228996188685172123","nick_name":"坚和","sku_id":31,"id":1,"spu_id":10,"order_id":18},"source":{"server_id":1,"version":"1.6.4.Final","file":"mysql-bin.000002","connector":"mysql","pos":3738955,"name":"mysql_binlog_source","row":0,"ts_ms":1744092413000,"snapshot":"false","db":"online_flink_retail","table":"comment_info"},"ts_ms":1745225176684}
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:61)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:35)
+	at org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter.emit(ChannelSelectorRecordWriter.java:55)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.pushToRecordWriter(RecordWriterOutput.java:105)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:91)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:45)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:59)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:31)
+	at org.apache.flink.streaming.api.operators.StreamFilter.processElement(StreamFilter.java:39)
+	at org.apache.flink.streaming.runtime.tasks.OneInputStreamTask$StreamTaskNetworkOutput.emitRecord(OneInputStreamTask.java:237)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.processElement(AbstractStreamTaskNetworkInput.java:146)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.emitNext(AbstractStreamTaskNetworkInput.java:110)
+	at org.apache.flink.streaming.runtime.io.StreamOneInputProcessor.processInput(StreamOneInputProcessor.java:65)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.processInput(StreamTask.java:550)
+	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.runMailboxLoop(MailboxProcessor.java:231)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.runMailboxLoop(StreamTask.java:839)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:788)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:952)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:931)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:745)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+	at com.rb.black_list.codes.BlackListProcessingData.lambda$main$450c0138$1(BlackListProcessingData.java:50)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:58)
+	... 21 more
+19:15:43,829 WARN  org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator     [Async-Client-Retry-Timer-pool1-t1]  - Failed to locate region in 'dim_zrb_online_v1:base_dic', row='1201', locateType=CURRENT
+org.apache.hadoop.hbase.DoNotRetryIOException: Client already closed
+	at org.apache.hadoop.hbase.zookeeper.ReadOnlyZKClient.list(ReadOnlyZKClient.java:290)
+	at org.apache.hadoop.hbase.client.ZKAsyncRegistry.getMetaRegionLocation(ZKAsyncRegistry.java:197)
+	at org.apache.hadoop.hbase.client.ConnectionUtils.getOrFetch(ConnectionUtils.java:648)
+	at org.apache.hadoop.hbase.client.AsyncMetaRegionLocator.getRegionLocations(AsyncMetaRegionLocator.java:60)
+	at org.apache.hadoop.hbase.client.AsyncRegionLocator.getRegionLocation(AsyncRegionLocator.java:106)
+	at org.apache.hadoop.hbase.client.AsyncRegionLocator.getRegionLocation(AsyncRegionLocator.java:135)
+	at org.apache.hadoop.hbase.client.AsyncSingleRequestRpcRetryingCaller.doCall(AsyncSingleRequestRpcRetryingCaller.java:107)
+	at org.apache.hadoop.hbase.client.AsyncRpcRetryingCaller.lambda$tryScheduleRetry$0(AsyncRpcRetryingCaller.java:143)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$HashedWheelTimeout.expire(HashedWheelTimer.java:682)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$HashedWheelBucket.expireTimeouts(HashedWheelTimer.java:757)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$Worker.run(HashedWheelTimer.java:485)
+	at java.lang.Thread.run(Thread.java:745)
+19:15:43,958 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#3]  - The configuration 'client.id.prefix' was supplied but isn't a known config.
+19:15:43,958 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#3]  - The configuration 'partition.discovery.interval.ms' was supplied but isn't a known config.
+19:15:44,312 WARN  org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator     [Default-IPC-NioEventLoopGroup-1-4]  - Failed to locate region in 'dim_zrb_online_v1:base_dic', row='1201', locateType=CURRENT
+org.apache.hadoop.hbase.TableNotFoundException: dim_zrb_online_v1:base_dic
+	at org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator$1.onComplete(AsyncNonMetaRegionLocator.java:453)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.lambda$startScan$1(AsyncClientScanner.java:183)
+	at org.apache.hadoop.hbase.util.FutureUtils.lambda$addListener$0(FutureUtils.java:65)
+	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:760)
+	at java.util.concurrent.CompletableFuture.uniWhenCompleteStage(CompletableFuture.java:778)
+	at java.util.concurrent.CompletableFuture.whenComplete(CompletableFuture.java:2140)
+	at org.apache.hadoop.hbase.util.FutureUtils.addListener(FutureUtils.java:58)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.startScan(AsyncClientScanner.java:166)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.lambda$openScanner$2(AsyncClientScanner.java:212)
+	at org.apache.hadoop.hbase.util.FutureUtils.lambda$addListener$0(FutureUtils.java:65)
+	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:760)
+	at java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:736)
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:474)
+	at java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1962)
+	at org.apache.hadoop.hbase.client.AsyncSingleRequestRpcRetryingCaller.lambda$call$4(AsyncSingleRequestRpcRetryingCaller.java:90)
+	at org.apache.hadoop.hbase.util.FutureUtils.lambda$addListener$0(FutureUtils.java:65)
+	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:760)
+	at java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:736)
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:474)
+	at java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1962)
+	at org.apache.hadoop.hbase.client.AsyncClientScanner.lambda$callOpenScanner$0(AsyncClientScanner.java:157)
+	at org.apache.hbase.thirdparty.com.google.protobuf.RpcUtil$1.run(RpcUtil.java:79)
+	at org.apache.hbase.thirdparty.com.google.protobuf.RpcUtil$1.run(RpcUtil.java:70)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient.onCallFinished(AbstractRpcClient.java:397)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient.access$100(AbstractRpcClient.java:97)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient$3.run(AbstractRpcClient.java:423)
+	at org.apache.hadoop.hbase.ipc.AbstractRpcClient$3.run(AbstractRpcClient.java:419)
+	at org.apache.hadoop.hbase.ipc.Call.callComplete(Call.java:117)
+	at org.apache.hadoop.hbase.ipc.Call.setResponse(Call.java:149)
+	at org.apache.hadoop.hbase.ipc.NettyRpcDuplexHandler.readResponse(NettyRpcDuplexHandler.java:184)
+	at org.apache.hadoop.hbase.ipc.NettyRpcDuplexHandler.channelRead(NettyRpcDuplexHandler.java:192)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:337)
+	at org.apache.hbase.thirdparty.io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:323)
+	at org.apache.hbase.thirdparty.io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:297)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:337)
+	at org.apache.hbase.thirdparty.io.netty.handler.timeout.IdleStateHandler.channelRead(IdleStateHandler.java:286)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:337)
+	at org.apache.hbase.thirdparty.io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1408)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:359)
+	at org.apache.hbase.thirdparty.io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:345)
+	at org.apache.hbase.thirdparty.io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:930)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:163)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:677)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:612)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:529)
+	at org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:491)
+	at org.apache.hbase.thirdparty.io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:905)
+	at org.apache.hbase.thirdparty.io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.lang.Thread.run(Thread.java:745)
+19:15:44,492 WARN  org.apache.flink.runtime.taskmanager.Task                    [commentDs (1/1)#3]  - commentDs (1/1)#3 (8a21cc6e6fb07f70327acde2143aa910_22cf407ed4e9dc7f031405f67d9e9983_0_3) switched from RUNNING to FAILED with failure cause:
+java.lang.RuntimeException: Could not extract key from {"op":"d","before":{"create_time":1744189415000,"user_id":7,"appraise":"1201","comment_txt":"评论内容：28163436844877216664957125466466228996188685172123","nick_name":"坚和","sku_id":31,"id":1,"spu_id":10,"order_id":18},"source":{"server_id":1,"version":"1.6.4.Final","file":"mysql-bin.000002","connector":"mysql","pos":3738955,"name":"mysql_binlog_source","row":0,"ts_ms":1744092413000,"snapshot":"false","db":"online_flink_retail","table":"comment_info"},"ts_ms":1745225176684}
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:61)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:35)
+	at org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter.emit(ChannelSelectorRecordWriter.java:55)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.pushToRecordWriter(RecordWriterOutput.java:105)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:91)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:45)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:59)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:31)
+	at org.apache.flink.streaming.api.operators.StreamFilter.processElement(StreamFilter.java:39)
+	at org.apache.flink.streaming.runtime.tasks.OneInputStreamTask$StreamTaskNetworkOutput.emitRecord(OneInputStreamTask.java:237)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.processElement(AbstractStreamTaskNetworkInput.java:146)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.emitNext(AbstractStreamTaskNetworkInput.java:110)
+	at org.apache.flink.streaming.runtime.io.StreamOneInputProcessor.processInput(StreamOneInputProcessor.java:65)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.processInput(StreamTask.java:550)
+	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.runMailboxLoop(MailboxProcessor.java:231)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.runMailboxLoop(StreamTask.java:839)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:788)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:952)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:931)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:745)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+	at com.rb.black_list.codes.BlackListProcessingData.lambda$main$450c0138$1(BlackListProcessingData.java:50)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:58)
+	... 21 more
+19:15:45,558 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#4]  - The configuration 'client.id.prefix' was supplied but isn't a known config.
+19:15:45,558 WARN  org.apache.kafka.clients.consumer.ConsumerConfig             [Source: Kafka Source (1/1)#4]  - The configuration 'partition.discovery.interval.ms' was supplied but isn't a known config.
+19:15:46,429 WARN  org.apache.flink.runtime.taskmanager.Task                    [commentDs (1/1)#4]  - commentDs (1/1)#4 (8a21cc6e6fb07f70327acde2143aa910_22cf407ed4e9dc7f031405f67d9e9983_0_4) switched from RUNNING to FAILED with failure cause:
+java.lang.RuntimeException: Could not extract key from {"op":"d","before":{"create_time":1744189415000,"user_id":7,"appraise":"1201","comment_txt":"评论内容：28163436844877216664957125466466228996188685172123","nick_name":"坚和","sku_id":31,"id":1,"spu_id":10,"order_id":18},"source":{"server_id":1,"version":"1.6.4.Final","file":"mysql-bin.000002","connector":"mysql","pos":3738955,"name":"mysql_binlog_source","row":0,"ts_ms":1744092413000,"snapshot":"false","db":"online_flink_retail","table":"comment_info"},"ts_ms":1745225176684}
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:61)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:35)
+	at org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter.emit(ChannelSelectorRecordWriter.java:55)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.pushToRecordWriter(RecordWriterOutput.java:105)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:91)
+	at org.apache.flink.streaming.runtime.io.RecordWriterOutput.collect(RecordWriterOutput.java:45)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:59)
+	at org.apache.flink.streaming.api.operators.CountingOutput.collect(CountingOutput.java:31)
+	at org.apache.flink.streaming.api.operators.StreamFilter.processElement(StreamFilter.java:39)
+	at org.apache.flink.streaming.runtime.tasks.OneInputStreamTask$StreamTaskNetworkOutput.emitRecord(OneInputStreamTask.java:237)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.processElement(AbstractStreamTaskNetworkInput.java:146)
+	at org.apache.flink.streaming.runtime.io.AbstractStreamTaskNetworkInput.emitNext(AbstractStreamTaskNetworkInput.java:110)
+	at org.apache.flink.streaming.runtime.io.StreamOneInputProcessor.processInput(StreamOneInputProcessor.java:65)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.processInput(StreamTask.java:550)
+	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.runMailboxLoop(MailboxProcessor.java:231)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.runMailboxLoop(StreamTask.java:839)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:788)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:952)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:931)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:745)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+	at com.rb.black_list.codes.BlackListProcessingData.lambda$main$450c0138$1(BlackListProcessingData.java:50)
+	at org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner.selectChannel(KeyGroupStreamPartitioner.java:58)
+	... 21 more
+19:15:46,668 WARN  org.apache.hadoop.hbase.client.AsyncNonMetaRegionLocator     [Async-Client-Retry-Timer-pool1-t1]  - Failed to locate region in 'dim_zrb_online_v1:base_dic', row='1201', locateType=CURRENT
+org.apache.hadoop.hbase.DoNotRetryIOException: Client already closed
+	at org.apache.hadoop.hbase.zookeeper.ReadOnlyZKClient.list(ReadOnlyZKClient.java:290)
+	at org.apache.hadoop.hbase.client.ZKAsyncRegistry.getMetaRegionLocation(ZKAsyncRegistry.java:197)
+	at org.apache.hadoop.hbase.client.ConnectionUtils.getOrFetch(ConnectionUtils.java:648)
+	at org.apache.hadoop.hbase.client.AsyncMetaRegionLocator.getRegionLocations(AsyncMetaRegionLocator.java:60)
+	at org.apache.hadoop.hbase.client.AsyncRegionLocator.getRegionLocation(AsyncRegionLocator.java:106)
+	at org.apache.hadoop.hbase.client.AsyncRegionLocator.getRegionLocation(AsyncRegionLocator.java:135)
+	at org.apache.hadoop.hbase.client.AsyncSingleRequestRpcRetryingCaller.doCall(AsyncSingleRequestRpcRetryingCaller.java:107)
+	at org.apache.hadoop.hbase.client.AsyncRpcRetryingCaller.lambda$tryScheduleRetry$0(AsyncRpcRetryingCaller.java:143)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$HashedWheelTimeout.expire(HashedWheelTimer.java:682)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$HashedWheelBucket.expireTimeouts(HashedWheelTimer.java:757)
+	at org.apache.hbase.thirdparty.io.netty.util.HashedWheelTimer$Worker.run(HashedWheelTimer.java:485)
+	at java.lang.Thread.run(Thread.java:745)
 
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        ValueStateDescriptor<String> valueStateDescriptor
-                                = new ValueStateDescriptor<String>("lastVisitDateState", String.class);
-                        valueStateDescriptor.enableTimeToLive(StateTtlConfig.newBuilder(Time.seconds(10))
-                                        .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
-                                .build());
-                        lastVisitDateState = getRuntimeContext().getState(valueStateDescriptor);
-                    }
-
-                    @Override
-                    public JSONObject map(JSONObject jsonObj) throws Exception {
-                        //获取is_new的值
-                        String isNew = jsonObj.getJSONObject("common").getString("is_new");
-                        //从状态中获取首次访问日期
-                        String lastVisitDate = lastVisitDateState.value();
-                        //获取当前访问日期
-                        Long ts = jsonObj.getLong("ts");
-                        String curVisitDate = DateFormatUtil.tsToDate(ts);
-
-                        if ("1".equals(isNew)) {
-                            //如果is_new的值为1
-                            if (StringUtils.isEmpty(lastVisitDate)) {
-                                //如果键控状态为null，认为本次是该访客首次访问 APP，将日志中 ts 对应的日期更新到状态中，不对 is_new 字段做修改；
-                                lastVisitDateState.update(curVisitDate);
-                            } else {
-                                //如果键控状态不为null，且首次访问日期不是当日，说明访问的是老访客，将 is_new 字段置为 0；
-                                if (!lastVisitDate.equals(curVisitDate)) {
-                                    isNew = "0";
-                                    jsonObj.getJSONObject("common").put("is_new", isNew);
-                                }
-                            }
-
-                        } else {
-                            //如果 is_new 的值为 0
-                            //	如果键控状态为 null，说明访问 APP 的是老访客但本次是该访客的页面日志首次进入程序。当前端新老访客状态标记丢失时，
-                            // 日志进入程序被判定为新访客，Flink 程序就可以纠正被误判的访客状态标记，只要将状态中的日期设置为今天之前即可。本程序选择将状态更新为昨日；
-                            if (StringUtils.isEmpty(lastVisitDate)) {
-                                String yesterDay = DateFormatUtil.tsToDate(ts - 24 * 60 * 60 * 1000);
-                                lastVisitDateState.update(yesterDay);
-                            }
-                        }
-
-                        return jsonObj;
-                    }
-                }
-        );
-        //fixedDS.print();
-        return fixedDS;
-    }
+进程已结束,退出代码130

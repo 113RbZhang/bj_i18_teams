@@ -18,4 +18,12 @@ public class CheckPointUtils {
         env.setStateBackend(new HashMapStateBackend());
         env.getCheckpointConfig().setCheckpointStorage("hdfs://cdh01:8020/flink/checkpoints/ck");
     }
+    public static void newSetCk(StreamExecutionEnvironment env ,String s){
+        env.setParallelism(1);
+        // 设置 3s 的 checkpoint 间隔
+        System.setProperty("HADOOP_USER_NAME", "hdfs");
+        env.enableCheckpointing(3000);
+        env.setStateBackend(new HashMapStateBackend());
+        env.getCheckpointConfig().setCheckpointStorage("hdfs://cdh01:8020/flink/checkpoints/ck/"+s);
+    }
 }

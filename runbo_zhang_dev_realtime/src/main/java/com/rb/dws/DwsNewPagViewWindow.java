@@ -2,6 +2,7 @@ package com.rb.dws;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.houbb.sensitive.word.core.SensitiveWordHelper;
 import com.rb.utils.CheckPointUtils;
 import com.rb.utils.DateFormatUtil;
 import com.rb.utils.SourceSinkUtils;
@@ -122,45 +123,39 @@ public class DwsNewPagViewWindow {
         });
 //        keyedStream.print();
         SingleOutputStreamOperator<JSONObject> reduceDs = keyedStream.window(
-                        TumblingEventTimeWindows
-                                .of(Time.seconds(10)))
+                TumblingEventTimeWindows.of(Time.seconds(10)))
                 .reduce(new ReduceFunction<JSONObject>() {
                             @Override
                             public JSONObject reduce(JSONObject v1, JSONObject v2) throws Exception {
                                 Long v1_dt = v1.getJSONObject("page").getLong("during_time");
                                 Long v2_dt = v2.getJSONObject("page").getLong("during_time");
-                                JSONObject r1 = new JSONObject();
-
-                                v1.put("DurSum", v1_dt + v2_dt);
-                                v1.put("pvCt", v1.getLong("pvCt") + v2.getLong("pvCt"));
-                                v1.put("uvCt", v1.getLong("uvCt") + v2.getLong("uvCt"));
-                                r1.put("svCt", v1.getLong("svCt") + v2.getLong("svCt"));
                                 JSONObject common = v1.getJSONObject("common");
                                 String ar = common.getString("ar");
                                 String ch = common.getString("ch");
                                 String isNew = common.getString("is_new");
                                 String vc = common.getString("vc");
-                                v1.put("ar", ar);
-                                v1.put("ch", ch);
-                                v1.put("is_new", isNew);
-                                v1.put("vc", vc);
-//                                v1.put("v1", "111");
-                                v1.remove("displays");
-                                v1.remove("page");
-                                v1.remove("displays");
 
-
-                                return v1;
+                                JSONObject r1 = new JSONObject();
+                                r1.put("DurSum", v1_dt + v2_dt);
+                                r1.put("pvCt", v1.getLong("pvCt") + v2.getLong("pvCt"));
+                                r1.put("uvCt", v1.getLong("uvCt") + v2.getLong("uvCt"));
+                                r1.put("svCt", v1.getLong("svCt") + v2.getLong("svCt"));
+                                r1.put("ar", ar);
+                                r1.put("ch", ch);
+                                r1.put("is_new", isNew);
+                                r1.put("vc", vc);
+                                r1.remove("displays");
+                                r1.remove("page");
+                                r1.remove("displays");
+                                return r1;
                             }
                         }, new WindowFunction<JSONObject, JSONObject, Tuple4<String, String, String, String>, TimeWindow>() {
                             @Override
                             public void apply(Tuple4<String, String, String, String> stringStringStringStringTuple4, TimeWindow window, Iterable<JSONObject> input, Collector<JSONObject> out) throws Exception {
                                 JSONObject json = input.iterator().next();
-                                System.out.println("aaaa->"+json);
                                 String stt = DateFormatUtil.tsToDateTime(window.getStart());
                                 String curDate = DateFormatUtil.tsToDate(window.getStart());
                                 String edt = DateFormatUtil.tsToDateTime(window.getEnd());
-
 
                                 json.put("curDate", curDate);
                                 json.put("stt", stt);
@@ -169,6 +164,7 @@ public class DwsNewPagViewWindow {
                             }
                         }
                 );
+
         reduceDs.print("reduce->");
 
 

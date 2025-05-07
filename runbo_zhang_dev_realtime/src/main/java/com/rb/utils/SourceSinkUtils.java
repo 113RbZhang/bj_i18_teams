@@ -1,5 +1,6 @@
 package com.rb.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
@@ -18,6 +19,7 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
+import java.time.Duration;
 import java.util.Properties;
 
 /**
@@ -97,6 +99,32 @@ public class SourceSinkUtils {
                 .build();
 
         DataStreamSource<String> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        return kafkaSource;
+    }
+    public static DataStreamSource<String>  kafkaReadSetWater(StreamExecutionEnvironment env,String topic ){
+
+        KafkaSource<String> source = KafkaSource.<String>builder()
+                .setBootstrapServers("cdh03:9092")
+                .setTopics(topic)
+                .setGroupId(topic+"1")
+                .setStartingOffsets(OffsetsInitializer.earliest())
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .build();
+
+        DataStreamSource<String> kafkaSource = env.fromSource(source, WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofSeconds(3))
+                .withTimestampAssigner((event, timestamp) -> {
+                            if (event != null){
+                                try {
+                                    return JSONObject.parseObject(event).getLong("ts_ms");
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                    System.err.println("Failed to parse event as JSON or get ts_ms: " + event);
+                                    return 0L;
+                                }
+                            }
+                            return 0L;
+                        }
+                ), "Kafka Source");
         return kafkaSource;
     }
     public static DorisSink<String> getDorisSink(String db,String tableName){
