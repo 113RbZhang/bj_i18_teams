@@ -4,7 +4,7 @@ import static com.rb.black_list.utils.siliconflow.SiliconFlowApi.generateBadRevi
 
 /**
  * @Package com.stream.utils.CommonGenerateTempLate
- * @Author zhou.han
+ * @Author runbo.zhang
  * @Date 2025/3/16 19:43
  * @description: TempLate
  */
@@ -17,7 +17,7 @@ public class CommonGenerateTempLate {
     private static final String API_TOKEN = "sk-btoehipugrdkgryyacbkmvccynkdcsdlzayiifzbnaboacwh";
 
     public static String GenerateComment(String comment,String productName){
-        if (comment.equals(COMMENT)){
+        if (COMMENT.equals(comment)){
             return generateBadReview(
                     String.format(COMMENT_TEMPLATE,COMMENT, productName, "攻击性拉满,使用脏话"),
                     API_TOKEN

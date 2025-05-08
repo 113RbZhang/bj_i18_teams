@@ -9,7 +9,7 @@ import java.util.Random;
 
 /**
  * @Package com.stream.utils.SensitiveWordsUtils
- * @Author zhou.han
+ * @Author runbo.zhang
  * @Date 2025/3/16 21:58
  * @description: sensitive words
  */

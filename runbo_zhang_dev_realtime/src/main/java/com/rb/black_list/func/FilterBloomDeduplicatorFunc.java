@@ -14,9 +14,9 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * @Package com.retailersv1.func.FilterBloomDeduplicatorFunc
- * @Author
+ * @Author runbo.zhang
  * @Date 2025/3/31 22:25
- * @description: 布隆过滤器
+ * @description: 布隆过滤器 fastjson2
  */
 public class FilterBloomDeduplicatorFunc extends RichFilterFunction<JSONObject> {
 
@@ -53,6 +53,7 @@ public class FilterBloomDeduplicatorFunc extends RichFilterFunction<JSONObject> 
             bitArray = new byte[(optimalNumOfBits(expectedInsertions, falsePositiveRate) + 7) / 8];
         }
 
+        //获取哈希种子
         boolean mightContain = true;
         int hash1 = hash(compositeKey);
         int hash2 = hash1 >>> 16;

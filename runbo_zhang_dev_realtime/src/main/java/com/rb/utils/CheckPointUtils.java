@@ -25,5 +25,13 @@ public class CheckPointUtils {
         env.enableCheckpointing(3000);
         env.setStateBackend(new HashMapStateBackend());
         env.getCheckpointConfig().setCheckpointStorage("hdfs://cdh01:8020/flink/checkpoints/ck/"+s);
+        env.getCheckpointConfig().setCheckpointTimeout(60000);
+
+// 允许两个连续的 checkpoint 错误
+        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(2);
+
+// 同一时间只允许一个 checkpoint 进行
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+
     }
 }

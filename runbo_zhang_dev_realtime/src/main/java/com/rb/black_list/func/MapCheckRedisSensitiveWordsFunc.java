@@ -7,7 +7,7 @@ import org.apache.flink.api.common.functions.RichMapFunction;
 
 /**
  * @Package com.retailersv1.func.mapCheckRedisSensitiveWordsFuc
- * @Author zhou.han
+ * @Author runbo.zhang
  * @Date 2025/4/1 13:32
  * @description: check sensitive redis lua
  */

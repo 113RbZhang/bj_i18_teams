@@ -20,8 +20,8 @@ public class SiliconFlowApi {
     private static final String SILICON_API_TOKEN = "sk-btoehipugrdkgryyacbkmvccynkdcsdlzayiifzbnaboacwh";
     private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
             .connectionPool(CONNECTION_POOL)
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .build();
 
@@ -56,7 +56,8 @@ public class SiliconFlowApi {
 
     private static JSONObject buildRequestBody(String prompt) {
         return new JSONObject()
-                .fluentPut("model", "Pro/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B")
+//                .fluentPut("model", "Pro/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B")
+                .fluentPut("model", "Qwen/Qwen2.5-Coder-7B-Instruct")
                 .fluentPut("stream", false)
                 .fluentPut("max_tokens", 512)
                 .fluentPut("temperature", 0.7)
