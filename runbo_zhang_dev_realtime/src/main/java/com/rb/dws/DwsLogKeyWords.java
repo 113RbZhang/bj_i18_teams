@@ -14,7 +14,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @Date 2025/4/14 19:06
  * @description:
  */
-public class DwsLog {
+public class DwsLogKeyWords {
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -61,7 +61,6 @@ public class DwsLog {
                 "  GROUP BY window_start, window_end,keyword");
 
 //        resTable.execute().print();
-
 
         tEnv.executeSql("create table dws_traffic_source_keyword_page_view_window(" +
                 "  stt string, " +

@@ -51,7 +51,8 @@ public class BlackList {
                 if (isViolation == 0) {//不带敏感词的数据
                     String msg = value.getString("msg");
                     List<String> all = SensitiveWordHelper.findAll(msg);
-                    if (all.size() > 0) {//如果查询到符合SensitiveWordHelper的数据 标记p0
+                    if (all.size() > 0  ) {//如果查询到符合SensitiveWordHelper的数据 标记p0
+
                         value.put("violation_grade", "P1");
                         value.put("violation_msg", String.join(", ", all));
                     }

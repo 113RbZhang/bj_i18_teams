@@ -169,7 +169,7 @@ public class DwsProvinceOrder {
                         return obj.getString("province_id");
                     }
                 }, 100, TimeUnit.SECONDS);
-        resultStream.print();
+//        resultStream.print();
         //TODO 10.将关联的结果写到Doris中
 
         resultStream.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.getDorisSink("doris_database_v1", "dws_trade_province_order_window"));
