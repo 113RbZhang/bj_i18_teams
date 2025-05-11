@@ -26,6 +26,17 @@ public class DateFormatUtil {
         LocalDateTime localDateTime = LocalDateTime.parse(dateTime, dtfFull);
         return localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
     }
+    /***
+     * @author:
+     * @description:
+     * @params: 出生日期
+     * @return: 年龄
+     * @date: 2025/5/10 10:02
+     */
+    public static Long getAge(String date){
+        Long  l = DateFormatUtil.dateToTs(date);
+        return (new Date().getTime() - l) / (1000L * 60 * 60 * 24 * 365);
+    }
 
     /**
      * 把毫秒值转成 年月日:  2023-07-05
