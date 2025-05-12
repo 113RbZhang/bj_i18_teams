@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rb.utils.SourceSinkUtils;
 import com.rb.utils.HbaseUtil;
 import lombok.SneakyThrows;
+import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
@@ -118,13 +119,20 @@ public class DimToHbase {
         // {"before":null,"after":{"source_table":"user_info","sink_table":"dim_user_info","sink_family":"info","sink_columns":"id,login_name,name,user_level,birthday,gender,create_time,operate_time","sink_row_key":"id"},"source":{"version":"1.6.4.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":0,"snapshot":"false","db":"online_flink_retail_process","sequence":null,"table":"table_process_dim","server_id":0,"gtid":null,"file":"","pos":0,"row":0,"thread":null,"query":null},"op":"r","ts_ms":1744196070945,"transaction":null})
         dimTablesStream.print("zhuliu");
         //celiu> {"before":null,"after":{"id":5251,"log":"{\"common\":{\"ar\":\"28\",\"ba\":\"OPPO\",\"ch\":\"web\",\"is_new\":\"0\",\"md\":\"OPPO Remo8\",\"mid\":\"mid_302\",\"os\":\"Android 13.0\",\"sid\":\"76ce22b1-057e-49e3-a55d-fcd792d91721\",\"uid\":\"66\",\"vc\":\"v2.1.134\"},\"page\":{\"during_time\":17628,\"last_page_id\":\"mine\",\"page_id\":\"order_list\"},\"ts\":1744210322533}"},"source":{"version":"1.6.4.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":0,"snapshot":"false","db":"online_flink_retail","sequence":null,"table":"z_log","server_id":0,"gtid":null,"file":"","pos":0,"row":0,"thread":null,"query":null},"op":"r","ts_ms":1744188374568,"transaction":null}
-        sideOutput.print("celiu");
+//        sideOutput.print("celiu");
+        SingleOutputStreamOperator<String> filteredDs = sideOutput.filter(new RichFilterFunction<String>() {
+            @Override
+            public boolean filter(String value) throws Exception {
+                if (value.contains("after") && JSON.parseObject(value).getString("after") != null) {
+                    return true;
+                }
+                return false;
+            }
+        });
 
 
-
-
-        dimTablesStream.addSink(hbaseSink());
-        sideOutput.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_v1_dwd"));
+//        dimTablesStream.addSink(hbaseSink());
+        filteredDs.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_v1_dwd"));
 
 
         env.disableOperatorChaining();

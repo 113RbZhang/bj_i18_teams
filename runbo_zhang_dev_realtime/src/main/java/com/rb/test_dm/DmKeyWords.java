@@ -51,6 +51,8 @@ public class DmKeyWords {
                 " `common`['md'] as  md,\n" +
                 " `common`['vc'] as  vc,\n" +
                 " `common`['ba'] as  ba,\n" +
+                " `common`['os'] as  os,\n" +
+                " ts,\n" +
                 " `et` \n" +
                 " from page_log \n" +
                 " where `page`['last_page_id']='search' and `page`['item'] is not null and `common`['uid'] is not null and `page`['item_type'] ='keyword'"
@@ -60,7 +62,7 @@ public class DmKeyWords {
         //自定义函数
         tEnv.createTemporaryFunction("ik_split", UdtfTest.class);
         Table keyWordTable = tEnv.sqlQuery(
-                "SELECT keyword, et,uid,md,vc,ba " +
+                "SELECT keyword, et,uid,md,vc,ba,os,ts " +
                         "FROM search_table, LATERAL TABLE(ik_split(fullwords)) T(keyword)");
         tEnv.createTemporaryView("split_table", keyWordTable);
         Table resTable = tEnv.sqlQuery("SELECT \n" +
@@ -72,10 +74,12 @@ public class DmKeyWords {
                 "     md,\n" +
                 "     vc,\n" +
                 "     ba,\n" +
+                "     os,\n" +
+                "     ts,\n" +
                 "     count(*) keyword_count\n" +
                 "  FROM TABLE(\n" +
                 "    TUMBLE(TABLE split_table, DESCRIPTOR(et), INTERVAL '10' second))\n" +
-                "  GROUP BY window_start, window_end,keyword,uid,md,vc,ba");
+                "  GROUP BY window_start, window_end,keyword,uid,md,vc,ba,os,ts");
 
         List<String> names = resTable.getResolvedSchema().getColumnNames();
 

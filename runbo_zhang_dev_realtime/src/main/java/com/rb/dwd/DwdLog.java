@@ -51,10 +51,10 @@ public class DwdLog {
 
         fixNewOldDt.print("fffffffffffff");
 
-        fixNewOldDt.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_v2_log"));
+        fixNewOldDt.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_fix_new_old_log"));
 //
         notJsonData.print("nnnnnnnnn");
-        notJsonData.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_v2_log_not_json"));
+        notJsonData.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_not_json_log"));
 
         OutputTag<String> pageTag = new OutputTag<String>("page") {
         };
@@ -68,8 +68,9 @@ public class DwdLog {
         });
         SideOutputDataStream<String> pageDate = process.getSideOutput(pageTag);
 
+        pageDate.print();
         pageDate.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_v2_log_page"));
-
+//todo 输出到kafka
         env.disableOperatorChaining();
         env.execute();
 

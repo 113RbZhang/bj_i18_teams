@@ -3,6 +3,9 @@ package com.rb.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -209,6 +212,48 @@ public class HbaseUtil {
             throw new RuntimeException(e);
         }
         return null;
+    }
+    /***
+     * @author:
+     * @description:
+     * @params: []
+     * @return: org.apache.flink.streaming.api.functions.sink.SinkFunction<org.apache.flink.api.java.tuple.Tuple2<java.lang.String,java.lang.String>>
+     * @date: 2025/5/12 10:30
+     */
+    public static SinkFunction<Tuple2<String, String>> dimHbaseSink(){
+        RichSinkFunction<Tuple2<String, String>> sinkFunction = new RichSinkFunction<Tuple2<String, String>>() {
+            private Connection hbaseConnection;
+
+            @Override
+            public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
+                hbaseConnection = HbaseUtil.getHbaseConnection();
+            }
+
+            @Override
+            public void close() throws Exception {
+                HbaseUtil.closeHbaseConnection(hbaseConnection);
+            }
+
+            @Override
+            public void invoke(Tuple2<String, String> tp) throws Exception {
+                String data = tp.f0;
+                JSONObject dataJson = JSON.parseObject(data);
+                String process = tp.f1;
+                JSONObject processJson = JSON.parseObject(process);
+                String op = processJson.getString("op");
+                String sinkTable = processJson.getJSONObject("after").getString("sink_table");
+                String sinkRowKey = dataJson.getString(processJson.getJSONObject("after").getString("sink_row_key"));
+                if ("d".equals(op)) {//删除操作
+
+                    HbaseUtil.delRow(hbaseConnection, "dim_zrb_online_v1", sinkTable, sinkRowKey);
+
+                } else {//不是删除操作
+                    String family = processJson.getJSONObject("after").getString("sink_family");
+                    HbaseUtil.putRow(hbaseConnection, "dim_zrb_online_v1", sinkTable, sinkRowKey, family, dataJson.toJSONString());
+                }
+            }
+        };
+        return sinkFunction;
     }
 
 

@@ -15,12 +15,12 @@ public class CdcSinkToKafka {
     @SneakyThrows
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStreamSource<String> allData = SourceSinkUtils.cdcRead(env, "online_flink_retail", "*");
-        DataStreamSource<String> processData = SourceSinkUtils.cdcRead(env, "online_flink_retail_process", "table_process_dim");
+        DataStreamSource<String> allData = SourceSinkUtils.cdcRead(env, "realtime_dm", "*");
+//        DataStreamSource<String> processData = SourceSinkUtils.cdcRead(env, "online_flink_retail_process", "table_process_dim");
         allData.print("allData");
-        processData.print("processData");
+//        processData.print("processData");
         allData.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_v1"));
-        processData.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_process_v1"));
+//        processData.sinkTo(SourceSinkUtils.sinkToKafka("log_topic_flink_online_process_v1"));
 
 
         env.execute("aaaaaaaa");
