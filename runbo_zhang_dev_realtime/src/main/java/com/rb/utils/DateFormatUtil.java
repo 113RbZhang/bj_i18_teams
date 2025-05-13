@@ -1,8 +1,6 @@
 package com.rb.utils;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -33,9 +31,11 @@ public class DateFormatUtil {
      * @return: 年龄
      * @date: 2025/5/10 10:02
      */
-    public static Long getAge(String date){
-        Long  l = DateFormatUtil.dateToTs(date);
-        return (new Date().getTime() - l) / (1000L * 60 * 60 * 24 * 365);
+    public static Integer getAge(LocalDate date){
+
+        LocalDate localDate = LocalDate.now();
+        Period between = Period.between(date, localDate);
+        return between.getYears();
     }
 
     /**

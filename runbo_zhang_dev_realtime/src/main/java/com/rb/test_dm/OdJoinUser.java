@@ -26,7 +26,7 @@ public class OdJoinUser {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         CheckPointUtils.newSetCk(env, "aaa1");
         //读取dwd层订单明细宽表
-        DataStreamSource<String> dwdOrderDetail = SourceSinkUtils.kafkaRead(env, "dwd_trade_order_detail_v1");
+        DataStreamSource<String> dwdOrderDetail = SourceSinkUtils.kafkaRead(env, "dws_sku_order_detail_v1");
         SingleOutputStreamOperator<JSONObject> jsonDs = dwdOrderDetail.map(o -> JSON.parseObject(o));
 
         //读取ods数据 过滤用户表 异步io
@@ -54,7 +54,7 @@ public class OdJoinUser {
             public String getRowKey(JSONObject obj) {
                 return obj.getString("user_id");
             }
-        }, 100, TimeUnit.SECONDS);
+        }, 300, TimeUnit.SECONDS);
         joinUserDs.print();
         joinUserDs.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.sinkToKafka("od_join_user"));
 

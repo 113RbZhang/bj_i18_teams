@@ -1,5 +1,6 @@
 package com.rb.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -115,7 +116,14 @@ public class SourceSinkUtils {
                 .withTimestampAssigner((event, timestamp) -> {
                             if (event != null){
                                 try {
-                                    return JSONObject.parseObject(event).getLong("ts_ms");
+                                    JSONObject object = JSON.parseObject(event);
+
+                                    if (object.containsKey("tm_ms")&&object.getString("ts_ms")!=null){
+                                        return object.getLong("ts_ms");
+                                    }else if (object.containsKey("ts")&&object.getString("ts")!=null){
+                                        return object.getLong("ts");
+                                    }
+
                                 }catch (Exception e){
                                     e.printStackTrace();
                                     System.err.println("Failed to parse event as JSON or get ts_ms: " + event);
