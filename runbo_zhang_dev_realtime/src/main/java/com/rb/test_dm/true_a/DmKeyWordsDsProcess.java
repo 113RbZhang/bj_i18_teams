@@ -2,24 +2,26 @@ package com.rb.test_dm.true_a;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rb.test_dm.utils.FilterBloomDeduplicatorFunc;
 import com.rb.utils.SourceSinkUtils;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+
+import java.util.HashSet;
 
 
 /**
@@ -28,7 +30,7 @@ import org.apache.flink.util.OutputTag;
  * @Date 2025/4/14 19:06
  * @description:
  */
-public class DmKeyWords {
+public class DmKeyWordsDsProcess {
     @SneakyThrows
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -75,8 +77,8 @@ public class DmKeyWords {
                                     common.remove("ar");
                                     common.remove("is_new");
                                     common.remove("sid");
-                                    newObj.put("log_info", common);
-                                    newObj.put("keyword", "性价比");
+                                    newObj.put("log_common_info", common);
+                                    newObj.put("keyword", "");
                                     if (obj.getJSONObject("page").containsKey("item_type")
                                             && ("keyword").equals(obj.getJSONObject("page").getString("item_type"))) {
                                         String item = page.getString("item");
@@ -89,40 +91,58 @@ public class DmKeyWords {
                         });
 //        withUidDs.print();
 //        SideOutputDataStream<JSONObject> keyWordDs = withUidDs.getSideOutput(haveKeyWord);
+        SingleOutputStreamOperator<JSONObject> distinctDs = withUidDs.keyBy(o->o.getString("uid")).process(new KeyedProcessFunction<String,JSONObject, JSONObject>() {
+
+            ValueState<HashSet<String>> strState;
+
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                ValueStateDescriptor<HashSet<String>> descriptor =
+                        new ValueStateDescriptor<HashSet<String>>(
+                                "state",
+                                TypeInformation.of(new TypeHint<HashSet<String>>() {
+                                })
+                        );
+                strState = getRuntimeContext().getState(descriptor);
+            }
+
+            @Override
+            public void processElement(JSONObject value, Context ctx, Collector<JSONObject> out) throws Exception {
+                HashSet<String> set = strState.value();
+                if (set == null) {
+                    set = new HashSet<>();
+                }
+//                String jsonString = JSON.toJSONString(value, SerializerFeature.WriteMapNullValue);
+                String jsonString = value.toJSONString();
+                System.err.println("处理数据中" + jsonString);
+                if (!set.contains(jsonString)) {
+                    System.err.println("添加新数据");
+                    set.add(jsonString);
+                    strState.update(set);
+                    out.collect(value);
+                } else {
+                    System.err.println("数据已存在" + jsonString);
+                }
 
 
-        SingleOutputStreamOperator<JSONObject> processDs = withUidDs.keyBy(o -> o.getString("uid"))
-                .window(TumblingEventTimeWindows
-                        .of(Time.days(1)))
-                .process(new ProcessWindowFunction<JSONObject, JSONObject, String, TimeWindow>() {
-                           ValueState<Long> tsState;
+            }
+        });
+//distinctDs.print();
+                SingleOutputStreamOperator<JSONObject> win2MinutesPageLogsDs = distinctDs
+                        .keyBy(data -> data.getString("uid"))
+                .process(new DistinctUserDs())
+                .keyBy(data -> data.getString("uid"))
+                .window(TumblingProcessingTimeWindows.of(Time.minutes(2)))
+                .reduce((value1, value2) -> value2)
+                .uid("win 2 minutes page count msg")
+                .name("win 2 minutes page count msg");
 
-                           @Override
-                           public void open(Configuration parameters) throws Exception {
-                               ValueStateDescriptor<Long> descriptor =
-                                       new ValueStateDescriptor<Long>(
-                                               "state", Long.class); // default value of the state, if nothing was set
-                               tsState = getRuntimeContext().getState(descriptor);
-                           }
-
-                           @Override
-                           public void process(String s, ProcessWindowFunction<JSONObject, JSONObject, String, TimeWindow>.Context context, Iterable<JSONObject> elements, Collector<JSONObject> out) throws Exception {
-                               JSONObject obj = elements.iterator().next();
-                               Long lastTs = tsState.value();
-                               Long ts = obj.getLong("ts");
-                               if (lastTs != null) {
-                                   if (lastTs <= ts) {
-                                       tsState.update(ts);
-                                       out.collect(obj);
-                                   }
-                               }
-                               tsState.update(ts);
-                           }
-                       }
-                );
-        SingleOutputStreamOperator<JSONObject> bloomFilterDs = processDs.keyBy(o->o.getString("uid")).filter(new FilterBloomDeduplicatorFunc(1000000, 0.0001, "uid", "ts"));
-        bloomFilterDs.print();
-
+                //加权重处理
+        SingleOutputStreamOperator<JSONObject> finalKeyWordDs = win2MinutesPageLogsDs
+                .keyBy(o -> o.getString("uid"))
+                .map(new KeyWordGradeMap());
+        finalKeyWordDs.print();
+        finalKeyWordDs.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.sinkToKafka("dm_keyword_final"));
 
         env.disableOperatorChaining();
         env.execute();

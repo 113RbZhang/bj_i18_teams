@@ -40,18 +40,7 @@ public class SourceSinkUtils {
 
     public static DataStreamSource<String> cdcRead(StreamExecutionEnvironment env, String dbName, String tableName) throws Exception {
 
-
         env.setParallelism(1);
-        // 设置 3s 的 checkpoint 间隔
-//        env.enableCheckpointing(3000);
-//        env.setStateBackend(new HashMapStateBackend());
-//        env.getCheckpointConfig().setCheckpointStorage("hdfs://cdh01:8020/flink/checkpoints");
-
-
-        // 设置 source 节点的并行度为 4
-        // 设置 sink 节点并行度为 1
-
-
         Properties properties = new Properties();
         properties.setProperty("decimal.handling.mode", "double");
         properties.setProperty("time.precision.mode", "connect");
