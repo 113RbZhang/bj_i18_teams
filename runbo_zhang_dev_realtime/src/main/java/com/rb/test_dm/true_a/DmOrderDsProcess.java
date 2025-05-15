@@ -44,7 +44,7 @@ public class DmOrderDsProcess {
         SingleOutputStreamOperator<JSONObject> weightHeightDs = cdc.map(o -> JSON.parseObject(o));
         DataStreamSource<String> userAndOdDs = SourceSinkUtils.kafkaRead(env, "od_join_user");
 
-        //去重
+        //去重 一个user_id只要一条数据
         SingleOutputStreamOperator<JSONObject> distinctDs = userAndOdDs
                 .keyBy(o -> JSON.parseObject(o).getString("user_id"))
                 .process(new KeyedProcessFunction<String, String, JSONObject>() {
@@ -165,14 +165,16 @@ public class DmOrderDsProcess {
         //{"birthday":"1983-03-09","starSign":"双鱼座","decade":1980,"category2_name":"手机通讯","time_type":"凌晨","sku_num":"1","spu_name":"Apple iPhone 12","user_name":"韩群豪","split_original_amount":"8197.0000","date_id":"2025-05-14","tm_name":"苹果","unit_height":"cm","category1_name":"手机","sku_name":"Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机","id":"576","spu_id":"3","category2_id":"13","height":"185","create_time":"1747170502000","split_coupon_amount":"0.0","weight":"56","sku_id":"8","category1_id":"2","user_birthday":"4815","user_login_name":"y60z4z0oye","tm_id":"2","user_id":"147","province_id":"11","price_level":"高价商品","category3_name":"手机","unit_weight":"kg","order_id":"316","category3_id":"61","split_activity_amount":"0.0","ts_ms":"1747032723000","age":42,"split_total_amount":"8197.0"}
         //加权重处理
         SingleOutputStreamOperator<JSONObject> codeOrderDs = baseDs.map(new OrderGradeMap());
-        SingleOutputStreamOperator<JSONObject> OrderFinalDs = codeOrderDs
+        SingleOutputStreamOperator<JSONObject> orderFinalDs = codeOrderDs
                 .keyBy(data -> data.getString("user_id"))
                 .window(TumblingProcessingTimeWindows.of(Time.minutes(2)))
                 .reduce((value1, value2) -> value2)
                 .uid("win 2 minutes page count msg")
                 .name("win 2 minutes page count msg");
-        OrderFinalDs.print();
-        OrderFinalDs.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.sinkToKafka("dm_order_final_v2"));
+//        orderFinalDs.print();
+//        orderFinalDs.sinkTo(csv)
+
+//        orderFinalDs.map(o->o.toJSONString()).sinkTo(SourceSinkUtils.sinkToKafka("dm_order_final_v2"));
 
         env.disableOperatorChaining();
         env.execute();

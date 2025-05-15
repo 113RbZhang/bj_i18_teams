@@ -20,7 +20,7 @@ public interface DimJoinFunction<T> {
 
     /**
      * @author:
-     * @description: 表名
+     * @description: 给出表名
      * @params: []
      * @return: java.lang.String
      * @date: 2025/4/22 22:52
@@ -28,7 +28,7 @@ public interface DimJoinFunction<T> {
     String getTableName() ;
     /**
      * @author:
-     * @description: 连接字段
+     * @description: 给出流中连接字段
      * @params: [T]
      * @return: java.lang.String
      * @date: 2025/4/22 22:52

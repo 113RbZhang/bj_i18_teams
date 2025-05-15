@@ -3,6 +3,8 @@ package com.rb.test_dm.true_a;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.rb.utils.CheckPointUtils;
+import com.rb.utils.DateFormatUtil;
 import com.rb.utils.SourceSinkUtils;
 import lombok.SneakyThrows;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -42,11 +44,14 @@ public class DmFinalJoinCode {
     @SneakyThrows
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        CheckPointUtils.newSetCk(env, "DmFinalJoinCode");
+
+
         DataStreamSource<String> dmOrderDs = SourceSinkUtils.kafkaRead(env, "dm_order_final_v2");
         SingleOutputStreamOperator<JSONObject> dmOrderJsonDs= dmOrderDs.map(o -> JSON.parseObject(o));
         DataStreamSource<String> dmKeywordDs = SourceSinkUtils.kafkaReadSetWater(env, "dm_keyword_final");
         SingleOutputStreamOperator<JSONObject> dmKeywordJsonDs = dmKeywordDs.map(o -> JSON.parseObject(o));
-        dmOrderJsonDs
+        SingleOutputStreamOperator<JSONObject> finalDs = dmOrderJsonDs
                 .keyBy(o -> o.getString("user_id"))
                 .intervalJoin(dmKeywordJsonDs.keyBy(o -> o.getString("uid")))
                 .between(Time.days(-5), Time.days(5))
@@ -63,8 +68,11 @@ public class DmFinalJoinCode {
                         String weight = left.getString("weight");
                         String unit_height = left.getString("unit_height");
                         String height = left.getString("height");
-                        String sex = left.getString("sex");
+                        String gender = left.getString("user_gender");
                         String user_id = left.getString("user_id");
+                        Long tsMs = left.getLong("ts_ms");
+                        String dt = DateFormatUtil.tsToDate(tsMs);
+
 
                         result.put("starSign", starSign);
                         result.put("decade", decade);
@@ -73,17 +81,21 @@ public class DmFinalJoinCode {
                         result.put("weight", weight);
                         result.put("unit_height", unit_height);
                         result.put("height", height);
-                        result.put("sex", sex);
+                        if (gender==null){
+                            result.put("gender", "home");
+                        }else {
+                            result.put("gender", gender);
+                        }
                         result.put("user_id", user_id);
-
+                        result.put("dt", dt);
 
                         JSONObject tm_code = left.getJSONObject("tm_code");
                         JSONObject time_code = left.getJSONObject("time_code");
                         JSONObject price_code = left.getJSONObject("price_code");
                         JSONObject c1_code = left.getJSONObject("c1_code");
                         //右边
-                        JSONObject  device_code = right.getJSONObject("device_weight");
-                        JSONObject  keyword_code = right.getJSONObject("keyword_weight");
+                        JSONObject device_code = right.getJSONObject("device_weight");
+                        JSONObject keyword_code = right.getJSONObject("keyword_weight");
                         //推测年龄
 
                         String inferredAge = getInferredAge(c1_code, tm_code, time_code, price_code, device_code, keyword_code);
@@ -91,7 +103,11 @@ public class DmFinalJoinCode {
                         out.collect(result);
 
                     }
-                }).print();
+                });
+        finalDs.print();
+        finalDs.map(o->o.toJSONString())
+                .sinkTo(SourceSinkUtils.sinkToKafka("dm_tag_final_v1"));
+//                .sinkTo(SourceSinkUtils.getDorisSink("doris_database_v1", "dmTable"));
 
 
         env.disableOperatorChaining();
@@ -112,17 +128,21 @@ public class DmFinalJoinCode {
                 rankCods.add(v);
             }catch (Exception e){
 
-                System.err.println("time"+time);
-                System.err.println("c"+c1);
-                System.err.println("t"+tm);
-                System.err.println("p"+price);
-                System.err.println("d"+device);
-                System.err.println("k"+keyword);
+                //判断是否有空值（前面type可能错误）
+                System.err.println("time= "+time);
+                System.err.println("c= "+c1);
+                System.err.println("t= "+tm);
+                System.err.println("p= "+price);
+                System.err.println("d= "+device);
+                System.err.println("k= "+keyword);
             }
         }
         rankCods.add(0.0);
+
         double maxValue2 = Collections.max(rankCods);
+
         int index2 = rankCods.indexOf(maxValue2);
+
         return rank.get(index2);
 
     }
