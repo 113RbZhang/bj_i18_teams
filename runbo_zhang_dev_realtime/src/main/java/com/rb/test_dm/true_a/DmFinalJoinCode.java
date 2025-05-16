@@ -104,11 +104,13 @@ public class DmFinalJoinCode {
 
                     }
                 });
-        finalDs.print();
-        finalDs.map(o->o.toJSONString())
-                .sinkTo(SourceSinkUtils.sinkToKafka("dm_tag_final_v1"));
+//        finalDs.print();
+//        finalDs.map(o->o.toJSONString())
+//                .sinkTo(SourceSinkUtils.sinkToKafka("dm_tag_final_v1"));
 //                .sinkTo(SourceSinkUtils.getDorisSink("doris_database_v1", "dmTable"));
 
+        finalDs.writeAsText("D:\\java\\java_test\\bj_i18_teams\\docs\\runbo_zhang/final.txt");
+//                writeAsCsv("./final.csv");
 
         env.disableOperatorChaining();
         env.execute();
