@@ -20,6 +20,9 @@ IDEA + Java + Shell + JDK 1.8
 技术架构：
 Kafka + Flink +  Redis + Doris + FineBI
 责任描述：
+
+
+
 主导项目技术方案设计，完成 Flink 作业架构搭建，实现从 Kafka 消费评论数据、调用 Redis 敏感词库及 SensitiveWordHelper 工具进行分级检测，到数据存储与同步全链路开发。
 负责使用自定义分词器将评论数据处理。
 负责 Redis 敏感词库的设计与维护，制定 P0 和 P1 敏感词分级规则，优化敏感词检索效率。
