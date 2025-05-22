@@ -17,7 +17,7 @@
 敏感词库存储于 Redis，通过读取 Redis 中的敏感词库，对评论数据进行 P0 级敏感词检测，快速识别出严重违规的敏感词汇。对于 P1 级敏感词检测，借助 .SensitiveWordHelper 工具，实现对相对隐晦、潜在敏感内容的深度挖掘。经 Flink 处理后的结果数据，存储至Kafka方便其他部门进行及时处理，并将数据映射到 Doris 数据仓库，方便后续通过 FineBI 进行可视化分析，生成敏感词分布、趋势等报表，辅助运营人员掌握平台内容安全状况。
 开发环境：
 IDEA + Java + Shell + JDK 1.8
-技术架构：
+技术架构：dataworks
 Kafka + Flink +  Redis + Doris + FineBI
 责任描述：
 
