@@ -1,7 +1,7 @@
-2025-05-19 日报 张润博
+2025-05-23 日报 张润博
 1.git提交（已完成）
-2.oracle实践（已完成）
-3.简历（进行中）
+2.dataworks（进行中）
+3.简历（已完成）
 上传地址:https://github.com/113RbZhang/bj_i18_teams.git
 分支:dev_runbo_zhang
 
